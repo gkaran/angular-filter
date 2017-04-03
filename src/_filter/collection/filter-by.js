@@ -10,9 +10,13 @@ angular.module('a8m.filter-by', [])
   .filter('filterBy', ['$parse', function( $parse ) {
     return function(collection, properties, search, strict) {
       var comparator;
+      var booleanFilter = typeof search === 'boolean';
 
-      search = (isString(search) || isNumber(search)) ?
-        String(search).toLowerCase() : undefined;
+      if (isString(search) || isNumber(search)) {
+        search = String(search).toLowerCase();
+      } else if (!booleanFilter) {
+        search = undefined;
+      }
 
       collection = isObject(collection) ? toArray(collection) : collection;
 
@@ -44,7 +48,7 @@ angular.module('a8m.filter-by', [])
 
           comparator = String(comparator).toLowerCase();
 
-          return strict ? comparator === search : comparator.contains(search);
+          return (strict || booleanFilter) ? comparator === search : comparator.contains(search);
         });
       });
     }

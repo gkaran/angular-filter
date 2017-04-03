@@ -78,14 +78,28 @@ describe('filterByFilter', function() {
     expect(filter(1)).toEqual(1);
     expect(filter('string')).toEqual('string');
     expect(filter(undefined)).toEqual(undefined);
+    expect(filter(true)).toBeTruthy();
+    expect(filter(false)).toBeFalsy();
   });
 
-  it('should not coerce non-string/number properties', function() {
+  it('should not coerce non-string/number/boolean properties', function() {
     var users = [
       { id: [1, 2], user: { first_name: 'foo', last_name: 'bar',  mobile: 4444 } }
     ];
 
     expect(filter(users, ['id'], 1)).toEqual([]);
+  });
+
+  it('should take care of boolean properties', function () {
+    var users = [
+      { id: 1, user: { first_name: 'foo', last_name: 'bar', age: 26, married: true } },
+      { id: 2, user: { first_name: 'bar', last_name: 'foo', age: 14, married: false } },
+      { id: 3, user: { first_name: 'foo', last_name: 'baz', age: 20, married: true } },
+      { id: 4, user: { first_name: 'baz', last_name: 'foo', age: 28, married: false } }
+    ];
+
+    expect(filter(users, ['user.married'], true).toEqual([users[0], users[2]]));
+    expect(filter(users, ['user.married'], false).toEqual([users[1], users[3]]));
   });
 
   describe('strict mode', function() {
